@@ -1,4 +1,4 @@
-# BangoAI - Personal AI Chat Assistant App
+# BangoAI - AI Chat App
 
 **Note:** This project is currently under construction. Features and functionalities are being developed and may change over time.
 
