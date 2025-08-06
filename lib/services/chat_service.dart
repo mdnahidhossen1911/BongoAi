@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ChatService {
-  final String _apiKey =
-      'YOUR_OPENAI_API_KEY'; // Replace with your OpenAI API key
+  final String _apiKey = 'YOUR_OPENAI_API_KEY';
   final String _endpoint = 'https://api.openai.com/v1/chat/completions';
 
   Future<String> sendMessage(String message) async {

@@ -1,3 +1,4 @@
+import 'package:bongoai/utils/app_color.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/message.dart';
@@ -12,13 +13,13 @@ class ChatBubble extends StatelessWidget {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        margin: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.7,
         ),
         decoration: BoxDecoration(
-          color: isUser ? Colors.tealAccent.shade400 : Colors.grey[200],
+          color: isUser ? AppColors.primary : Colors.grey.shade100,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(18),
             topRight: Radius.circular(18),

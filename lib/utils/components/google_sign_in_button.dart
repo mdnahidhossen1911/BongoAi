@@ -1,3 +1,4 @@
+import 'package:bongoai/utils/app_color.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/assets_path.dart';
@@ -27,7 +28,7 @@ class GoogleSignInButton extends StatelessWidget {
           height: 48,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: backgroundColor ?? Colors.tealAccent.shade400,
+            color: backgroundColor ?? AppColors.buttonColor,
             borderRadius: BorderRadius.circular(borderRadius),
           ),
           child: Row(

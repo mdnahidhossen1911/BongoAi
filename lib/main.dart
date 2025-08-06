@@ -28,22 +28,31 @@ class BongoAIApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'BongoAI',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blueAccent,
-            brightness: Brightness.light,
+          scaffoldBackgroundColor: Colors.white,
+          inputDecorationTheme: InputDecorationTheme(
+            hintStyle: const TextStyle(color: Color(0xA6386365), fontSize: 14),
+            filled: true,
+            fillColor: const Color(0x0F1CCAD1),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 15,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50),
+              borderSide: const BorderSide(color: Color(0x401CCAD1), width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50),
+              borderSide: const BorderSide(color: Color(0x401CCAD1), width: 1),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50),
+              borderSide: BorderSide.none,
+            ),
           ),
           useMaterial3: true,
           fontFamily: 'Roboto',
         ),
-        darkTheme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.greenAccent,
-            brightness: Brightness.dark,
-          ),
-          useMaterial3: true,
-          fontFamily: 'Roboto',
-        ),
-        themeMode: ThemeMode.system,
         routerConfig: _router,
       ),
     );

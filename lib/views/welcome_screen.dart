@@ -5,7 +5,6 @@ import 'package:lottie/lottie.dart';
 import '../utils/assets_path.dart';
 import '../utils/components/app_logo.dart';
 import '../utils/components/google_sign_in_button.dart';
-import '../utils/components/guest_sign_in_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -63,7 +62,7 @@ class WelcomeScreen extends StatelessWidget {
               Spacer(),
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 55,
                 child: GoogleSignInButton(
                   onPressed: () {
                     print('Continue with Google tapped');
@@ -72,11 +71,6 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              GuestSignInButton(
-                onPressed: () {
-                  print('Continue with Guest tapped');
-                },
-              ),
             ],
           ),
         ),
