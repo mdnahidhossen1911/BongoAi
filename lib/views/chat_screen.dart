@@ -1,6 +1,7 @@
 import 'package:bongoai/utils/app_color.dart';
 import 'package:bongoai/utils/assets_path.dart';
 import 'package:bongoai/utils/components/chat_welcome.dart';
+import 'package:bongoai/utils/components/profile_dialog_box.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -149,7 +150,9 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         const SizedBox(width: 12),
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            showProfileDialog(context);
+          },
           child: CircleAvatar(
             backgroundColor: Colors.cyan.shade100,
             radius: 19,
