@@ -1,4 +1,5 @@
 import 'package:bongoai/locator.dart';
+import 'package:bongoai/utils/roles.dart';
 import 'package:flutter/material.dart';
 
 import '../models/message.dart';
@@ -11,33 +12,28 @@ class ChatViewModel extends ChangeNotifier {
   final ChatService _chatService = serviceLocator<ChatService>();
 
   Future<void> sendMessage(String text) async {
-    _messages.add(Message(text: text, isUser: true));
+    _messages.add(Message(content: text, role: Roles.user));
     notifyListeners();
     final response = await _chatService.sendMessage(text);
-    _messages.add(Message(text: response, isUser: false));
+    _messages.add(Message(content: response, role: Roles.assistant));
     notifyListeners();
   }
 
   void sendMessageWithSampleResponse(String text) {
-    _messages.add(Message(text: text, isUser: true));
-    _messages.add(Message(text: 'This is a sample response.', isUser: false));
+    _messages.add(Message(content: text, role: Roles.user));
+    _messages.add(
+      Message(content: 'This is a sample response.', role: Roles.assistant),
+    );
     notifyListeners();
   }
 
   void addUserMessage(String text) {
-    _messages.add(Message(text: text, isUser: true));
+    _messages.add(Message(content: text, role: Roles.user));
     notifyListeners();
   }
 
   void addBotMessage(String text) {
-    _messages.add(Message(text: text, isUser: false));
+    _messages.add(Message(content: text, role: Roles.assistant));
     notifyListeners();
-  }
-
-  void updateBotMessage(int index, String newText) {
-    if (index >= 0 && index < _messages.length && !_messages[index].isUser) {
-      _messages[index] = Message(text: newText, isUser: false);
-      notifyListeners();
-    }
   }
 }

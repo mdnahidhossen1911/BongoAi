@@ -1,6 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 void showProfileDialog(BuildContext context) {
+  final user = FirebaseAuth.instance.currentUser;
+
   showDialog(
     context: context,
     builder: (context) {
@@ -16,12 +21,12 @@ void showProfileDialog(BuildContext context) {
               CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage(
-                  'https://avatars.githubusercontent.com/u/160839491?v=4',
+                  user?.photoURL ?? 'https://www.gravatar.com/avatar/',
                 ),
               ),
               const SizedBox(height: 15),
               Text(
-                'MD Nahid Hossen',
+                user?.displayName ?? 'User Name',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -29,7 +34,7 @@ void showProfileDialog(BuildContext context) {
                 ),
               ),
               Text(
-                'md.nahidhossen1911@gmail.com',
+                user?.email ?? 'email',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.black54),
               ),
@@ -38,7 +43,11 @@ void showProfileDialog(BuildContext context) {
                 width: double.infinity,
                 height: 48,
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    await signOut();
+                    context.go('/login');
+                  },
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.red.shade50,
                     foregroundColor: Colors.red.shade300,
@@ -88,4 +97,10 @@ void showProfileDialog(BuildContext context) {
       );
     },
   );
+}
+
+Future<void> signOut() async {
+  final googleSignIn = GoogleSignIn();
+  await googleSignIn.signOut();
+  await FirebaseAuth.instance.signOut();
 }

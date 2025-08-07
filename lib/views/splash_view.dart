@@ -1,7 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:bongoai/locator.dart';
-import 'package:bongoai/services/auth_service.dart';
 import 'package:bongoai/utils/components/app_logo.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -21,9 +20,9 @@ class _SplashViewState extends State<SplashView> {
   }
 
   Future<void> moveNextScreen() async {
-    bool isLogin = await serviceLocator<AuthService>().isLogin();
+    final user = FirebaseAuth.instance.currentUser;
     await Future.delayed(Duration(seconds: 4));
-    if (isLogin) {
+    if (user != null) {
       context.go('/chat');
     } else {
       context.go('/login');

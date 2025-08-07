@@ -2,6 +2,7 @@ import 'package:bongoai/utils/app_color.dart';
 import 'package:bongoai/utils/assets_path.dart';
 import 'package:bongoai/utils/components/chat_welcome.dart';
 import 'package:bongoai/utils/components/profile_dialog_box.dart';
+import 'package:bongoai/utils/roles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,11 +41,8 @@ class _ChatViewState extends State<ChatView> {
       _scrollToBottom();
       Future.delayed(const Duration(seconds: 5), () {
         final botIndex = vm.messages.lastIndexWhere(
-          (m) => !m.isUser && m.text == '...thinking...',
+          (m) => m.role == Roles.assistant && m.content == '...thinking...',
         );
-        if (botIndex != -1) {
-          vm.updateBotMessage(botIndex, 'This is a sample response.');
-        }
       });
     });
   }

@@ -41,8 +41,11 @@ dependencies:
   lottie:
   shared_preferences:
   flutter_dotenv:
-  supabase_flutter:
   animated_text_kit:
+  google_sign_in: ^6.0.2
+  logger: ^2.6.0
+  firebase_core:
+  firebase_auth:
 
 dev_dependencies:
   flutter_test:

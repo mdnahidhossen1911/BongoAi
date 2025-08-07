@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lottie/lottie.dart';
 
 import '../utils/assets_path.dart';
@@ -64,9 +66,15 @@ class WelcomeView extends StatelessWidget {
                 width: double.infinity,
                 height: 55,
                 child: GoogleSignInButton(
-                  onPressed: () {
-                    print('Continue with Google tapped');
-                    context.go('/chat');
+                  onPressed: () async {
+                    bool isSignIn = await signInWithGoogle();
+                    if (isSignIn) {
+                      context.go('/chat');
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Google sign-in failed')),
+                      );
+                    }
                   },
                 ),
               ),
@@ -76,5 +84,26 @@ class WelcomeView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        return false;
+      }
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return true;
+    } catch (e) {
+      throw Exception('Google sign-in failed: $e');
+    }
   }
 }
