@@ -8,14 +8,14 @@ import 'package:provider/provider.dart';
 import '../utils/components/chat_bubble.dart';
 import '../viewmodels/chat_viewmodel.dart';
 
-class ChatScreen extends StatefulWidget {
-  ChatScreen({super.key});
+class ChatView extends StatefulWidget {
+  ChatView({super.key});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<ChatView> createState() => _ChatViewState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatViewState extends State<ChatView> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();

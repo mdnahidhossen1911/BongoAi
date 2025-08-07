@@ -1,21 +1,33 @@
+import 'package:bongoai/views/splash_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'locator.dart';
 import 'viewmodels/chat_viewmodel.dart';
-import 'views/chat_screen.dart';
-import 'views/welcome_screen.dart';
+import 'views/chat_view.dart';
+import 'views/welcome_view.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASEURL'] ?? 'NO URL',
+    anonKey: dotenv.env['ANOKEY'] ?? 'NO API KEY',
+  );
   setupServiceLocator();
+
   runApp(BongoAIApp());
 }
 
 final GoRouter _router = GoRouter(
   routes: [
-    GoRoute(path: '/', builder: (context, state) => const WelcomeScreen()),
-    GoRoute(path: '/chat', builder: (context, state) => ChatScreen()),
+    GoRoute(path: '/', builder: (context, state) => const SplashView()),
+    GoRoute(path: '/login', builder: (context, state) => WelcomeView()),
+    GoRoute(path: '/chat', builder: (context, state) => ChatView()),
   ],
 );
 
@@ -29,6 +41,7 @@ class BongoAIApp extends StatelessWidget {
         title: 'BongoAI',
         theme: ThemeData(
           scaffoldBackgroundColor: Colors.white,
+          appBarTheme: AppBarTheme(backgroundColor: Colors.white),
           inputDecorationTheme: InputDecorationTheme(
             hintStyle: const TextStyle(color: Color(0xA6386365), fontSize: 14),
             filled: true,

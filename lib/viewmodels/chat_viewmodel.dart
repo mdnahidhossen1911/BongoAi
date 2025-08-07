@@ -1,5 +1,5 @@
+import 'package:bongoai/locator.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
 import '../models/message.dart';
 import '../services/chat_service.dart';
@@ -8,7 +8,7 @@ class ChatViewModel extends ChangeNotifier {
   final List<Message> _messages = [];
   List<Message> get messages => _messages;
 
-  final ChatService _chatService = GetIt.I<ChatService>();
+  final ChatService _chatService = serviceLocator<ChatService>();
 
   Future<void> sendMessage(String text) async {
     _messages.add(Message(text: text, isUser: true));

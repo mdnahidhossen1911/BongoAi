@@ -6,8 +6,8 @@ import '../utils/assets_path.dart';
 import '../utils/components/app_logo.dart';
 import '../utils/components/google_sign_in_button.dart';
 
-class WelcomeScreen extends StatelessWidget {
-  const WelcomeScreen({super.key});
+class WelcomeView extends StatelessWidget {
+  const WelcomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
