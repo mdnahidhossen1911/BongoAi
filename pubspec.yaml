@@ -39,6 +39,9 @@ dependencies:
   go_router: ^13.2.2
   http: ^1.2.1
   lottie:
+  shared_preferences:
+  flutter_dotenv:
+  supabase_flutter:
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +67,7 @@ flutter:
   assets:
     - assets/animations/
     - assets/images/
+    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:
