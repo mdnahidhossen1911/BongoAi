@@ -3,8 +3,8 @@ class Assets {
   Assets._();
 
   static const String animationsAnimation = 'assets/animations/animation.json';
+  static const String bongoai = '.env';
   static const String imagesApplogo = 'assets/images/applogo.png';
   static const String imagesGoogleLogo = 'assets/images/google_logo.png';
   static const String imagesWriteIcon = 'assets/images/write_icon.png';
-
 }

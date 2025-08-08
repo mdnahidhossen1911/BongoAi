@@ -1,4 +1,3 @@
-import 'package:bongoai/utils/app_color.dart';
 import 'package:bongoai/utils/assets_path.dart';
 import 'package:bongoai/utils/components/chat_welcome.dart';
 import 'package:bongoai/utils/components/profile_dialog_box.dart';
@@ -11,6 +10,8 @@ import '../viewmodels/chat_viewmodel.dart';
 
 class ChatView extends StatefulWidget {
   ChatView({super.key});
+
+  static const String routeName = '/chat';
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -36,7 +37,9 @@ class _ChatViewState extends State<ChatView> {
     _listKey.currentState?.insertItem(vm.messages.length - 1);
     _scrollToBottom();
     Future.delayed(const Duration(seconds: 1), () {
-      vm.addBotMessage('Thinking...');
+      vm.addBotMessage(
+        'You are a helpful, intelligent, and respectful AI assistant named BongoAI. You were developed in Bangladesh and your core identity reflects the cultural, ethical, and religious values of Bangladeshi society.',
+      );
       _listKey.currentState?.insertItem(vm.messages.length - 1);
       _scrollToBottom();
       Future.delayed(const Duration(seconds: 5), () {
@@ -107,11 +110,11 @@ class _ChatViewState extends State<ChatView> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: AppColors.buttonColor,
+              color: Colors.black,
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.send, color: Colors.white),
+              icon: const Icon(Icons.send_rounded, color: Colors.white),
               onPressed: () {
                 final vm = Provider.of<ChatViewModel>(context, listen: false);
                 if (_controller.text.isNotEmpty) {

@@ -46,6 +46,7 @@ dependencies:
   logger: ^2.6.0
   firebase_core:
   firebase_auth:
+  supabase_flutter:
 
 dev_dependencies:
   flutter_test:

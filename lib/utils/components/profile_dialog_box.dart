@@ -1,10 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 void showProfileDialog(BuildContext context) {
-  final user = FirebaseAuth.instance.currentUser;
+  final googleSignIn = GoogleSignIn();
 
   showDialog(
     context: context,
@@ -21,12 +20,13 @@ void showProfileDialog(BuildContext context) {
               CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage(
-                  user?.photoURL ?? 'https://www.gravatar.com/avatar/',
+                  googleSignIn.currentUser?.photoUrl ??
+                      'https://www.gravatar.com/avatar/',
                 ),
               ),
               const SizedBox(height: 15),
               Text(
-                user?.displayName ?? 'User Name',
+                googleSignIn.currentUser?.displayName ?? 'User Name',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -34,7 +34,7 @@ void showProfileDialog(BuildContext context) {
                 ),
               ),
               Text(
-                user?.email ?? 'email',
+                googleSignIn.currentUser?.email ?? 'email',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.black54),
               ),
@@ -45,7 +45,6 @@ void showProfileDialog(BuildContext context) {
                 child: OutlinedButton(
                   onPressed: () async {
                     Navigator.of(context).pop();
-                    await signOut();
                     context.go('/login');
                   },
                   style: OutlinedButton.styleFrom(
@@ -97,10 +96,4 @@ void showProfileDialog(BuildContext context) {
       );
     },
   );
-}
-
-Future<void> signOut() async {
-  final googleSignIn = GoogleSignIn();
-  await googleSignIn.signOut();
-  await FirebaseAuth.instance.signOut();
 }

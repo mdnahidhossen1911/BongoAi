@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
 
+  static const String routeName = '/';
+
   @override
   State<SplashView> createState() => _SplashViewState();
 }
