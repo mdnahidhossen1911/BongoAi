@@ -1,7 +1,6 @@
 import 'package:bongoai/utils/assets_path.dart';
 import 'package:bongoai/utils/components/chat_welcome.dart';
 import 'package:bongoai/utils/components/profile_dialog_box.dart';
-import 'package:bongoai/utils/roles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -32,24 +31,6 @@ class _ChatViewState extends State<ChatView> {
     }
   }
 
-  void _addMessage(ChatViewModel vm, String text) {
-    vm.addUserMessage(text);
-    _listKey.currentState?.insertItem(vm.messages.length - 1);
-    _scrollToBottom();
-    Future.delayed(const Duration(seconds: 1), () {
-      vm.addBotMessage(
-        'You are a helpful, intelligent, and respectful AI assistant named BongoAI. You were developed in Bangladesh and your core identity reflects the cultural, ethical, and religious values of Bangladeshi society.',
-      );
-      _listKey.currentState?.insertItem(vm.messages.length - 1);
-      _scrollToBottom();
-      Future.delayed(const Duration(seconds: 5), () {
-        final botIndex = vm.messages.lastIndexWhere(
-          (m) => m.role == Roles.assistant && m.content == '...thinking...',
-        );
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +46,11 @@ class _ChatViewState extends State<ChatView> {
               Expanded(
                 child: Consumer<ChatViewModel>(
                   builder: (context, vm, child) {
+                    vm.onMessageAdded = (index) {
+                      _listKey.currentState?.insertItem(index);
+                      _scrollToBottom();
+                    };
+
                     return ListView.builder(
                       key: _listKey,
                       controller: _scrollController,
@@ -118,7 +104,8 @@ class _ChatViewState extends State<ChatView> {
               onPressed: () {
                 final vm = Provider.of<ChatViewModel>(context, listen: false);
                 if (_controller.text.isNotEmpty) {
-                  _addMessage(vm, _controller.text);
+                  FocusScope.of(context).unfocus();
+                  vm.sendMessage(_controller.text);
                   _controller.clear();
                 }
               },
@@ -147,7 +134,9 @@ class _ChatViewState extends State<ChatView> {
       actions: [
         IconButton(
           icon: Image.asset(AssetsPath.writeIcon, width: 28),
-          onPressed: () {},
+          onPressed: () {
+            Provider.of<ChatViewModel>(context, listen: false).resetMessages();
+          },
         ),
         const SizedBox(width: 12),
         GestureDetector(

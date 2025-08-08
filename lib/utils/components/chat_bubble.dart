@@ -16,9 +16,6 @@ class ChatBubble extends StatelessWidget {
         child: GestureDetector(
           onLongPress: () {
             Clipboard.setData(ClipboardData(text: message.content));
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Message copied to clipboard')),
-            );
           },
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 16),
@@ -52,11 +49,11 @@ class ChatBubble extends StatelessWidget {
       return GestureDetector(
         onLongPress: () {
           Clipboard.setData(ClipboardData(text: message.content));
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Message copied to clipboard')),
-          );
         },
-        child: Text(message.content),
+        child: Text(
+          message.content,
+          style: TextStyle(color: Colors.black87, fontSize: 15),
+        ),
       );
     } else {
       return SizedBox();
