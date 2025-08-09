@@ -2,7 +2,7 @@
 
 **Note:** This project is currently under construction. Features and functionalities are being developed and may change over time.
 
-BangoAI is a smart AI chat assistant app that supports both Bengali and English languages. Built with Flutter, it uses **OpenRoute API** for map and routing features, with Supabase as backend, Google Sign-In for authentication, and offline data handled using sqflite.
+**BongoAI** is an intelligent, user-friendly AI chatbot application that assists users with instant answers, daily queries, and smart conversations. Requires login for access, with chat history stored locally and in Supabase for seamless syncing.
 
 
 ## Features
