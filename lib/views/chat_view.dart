@@ -178,21 +178,35 @@ class _ChatViewState extends State<ChatView> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: 30,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      'MD Nahid Hossenf ghd fh dfgh d fghd fgh df ghd fgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    onTap: () {},
+              child: Consumer<ChatViewModel>(
+                builder: (context, value, child) {
+                  return ListView.builder(
+                    itemCount: value.conversations.length,
+                    itemBuilder: (context, index) {
+                      final conv = value.conversations[index];
+                      return GestureDetector(
+                        onTap: () {
+                          value.switchConversation(index);
+                          Navigator.pop(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            conv.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 17,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

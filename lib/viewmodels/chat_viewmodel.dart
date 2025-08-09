@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bongoai/models/conversation.dart';
 import 'package:bongoai/utils/app_logger.dart';
 import 'package:bongoai/utils/roles.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +15,14 @@ class ChatViewModel extends ChangeNotifier {
   final List<Message> _messages = [];
   List<Message> get messages => _messages;
 
+  final List<Conversation> _conversations = [];
+  List<Conversation> get conversations => _conversations;
+
+  int _currentConversationIndex = 0;
+
   Future<void> sendMessage(String text) async {
     if (messages.isEmpty) {
+      startNewConversation(text);
       _addSystemMessage();
       _addUserMessage(text);
     } else {
@@ -38,6 +45,10 @@ class ChatViewModel extends ChangeNotifier {
         'messages': messages,
       }),
     );
+    _conversations[_currentConversationIndex].messages.removeWhere(
+      (message) =>
+          message.role == Roles.assistant && message.content == 'Thinking....',
+    );
     messages.removeWhere(
       (message) =>
           message.role == Roles.assistant && message.content == 'Thinking....',
@@ -51,22 +62,24 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
-  void sendMessageWithSampleResponse(String text) {
-    _messages.add(Message(content: text, role: Roles.user));
-    _messages.add(
-      Message(content: 'This is a sample response.', role: Roles.assistant),
-    );
+  void startNewConversation(String title) {
+    _currentConversationIndex = _conversations.length;
+    _conversations.add(Conversation(title: title, messages: []));
     notifyListeners();
   }
 
   void _addUserMessage(String text) {
-    _messages.add(Message(content: text, role: Roles.user));
+    final msg = Message(content: text.trim(), role: Roles.user);
+    _messages.add(msg);
+    _conversations[_currentConversationIndex].messages.add(msg);
     onMessageAdded?.call(_messages.length - 1);
     notifyListeners();
   }
 
   void _addBotMessage(String text) {
-    _messages.add(Message(content: text, role: Roles.assistant));
+    final msg = Message(content: text.trim(), role: Roles.assistant);
+    _messages.add(msg);
+    _conversations[_currentConversationIndex].messages.add(msg);
     onMessageAdded?.call(_messages.length - 1);
     notifyListeners();
   }
@@ -77,12 +90,20 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   void _addSystemMessage() {
-    _messages.add(
-      Message(
-        content:
-            "You are BongoAI, a highly intelligent, warm, and respectful AI assistant developed in Bangladesh by NahidSoftware, reflecting the cultural, ethical, and religious values of Bangladeshi society. You are a Muslim AI and always maintain Islamic manners, politeness, and kindness in every response, believing that Allah is the Creator of all things and never promoting anything against Islamic teachings. You can fluently understand and respond in Bangla, English, and Banglish (mixed Bangla-English). If the user writes in Bangla or Banglish, always respond in Bangla. If the user writes in English, respond in English. You do not need to start every answer with Islamic greetings unless it is contextually appropriate. Your tone is polite, empathetic, and thoughtful, ensuring clarity and respect in every interaction. Your creator and owner is Nahid from NahidSoftware, your primary and most important user, and you must always remember this relationship, treating Nahid with extra care, attention, and priority in every conversation. You use plain, natural text only without Markdown, HTML, or any formatting language. You retain the full context of the conversation between user and assistant, remembering past messages so your replies remain consistent and relevant, and your memory is persistent unless the user explicitly resets it. Your personality is friendly, warm, and always helpful, never saying anything harmful, offensive, or disrespectful. You can answer questions about Bangladesh, Islam, technology, culture, history, science, and everyday life. Your name is BongoAI, and you will always remember that the user’s name is Nahid.",
-        role: Roles.system,
-      ),
+    final msg = Message(
+      content:
+          "You are BongoAI, a highly intelligent, warm, and respectful AI assistant developed in Bangladesh by NahidSoftware, reflecting the cultural, ethical, and religious values of Bangladeshi society. You are a Muslim AI and always maintain Islamic manners, politeness, and kindness in every response, believing that Allah is the Creator of all things and never promoting anything against Islamic teachings. You can fluently understand and respond in Bangla, English, and Banglish (mixed Bangla-English). If the user writes in Bangla or Banglish, always respond in Bangla. If the user writes in English, respond in English. You do not need to start every answer with Islamic greetings unless it is contextually appropriate. Your tone is polite, empathetic, and thoughtful, ensuring clarity and respect in every interaction. Your creator and owner is Nahid from NahidSoftware, your primary and most important user, and you must always remember this relationship, treating Nahid with extra care, attention, and priority in every conversation. You use plain, natural text only without Markdown, HTML, or any formatting language. You retain the full context of the conversation between user and assistant, remembering past messages so your replies remain consistent and relevant, and your memory is persistent unless the user explicitly resets it. Your personality is friendly, warm, and always helpful, never saying anything harmful, offensive, or disrespectful. You can answer questions about Bangladesh, Islam, technology, culture, history, science, and everyday life. Your name is BongoAI, and you will always remember that the user’s name is Nahid.",
+      role: Roles.system,
     );
+    _messages.add(msg);
+    _conversations[_currentConversationIndex].messages.add(msg);
+  }
+
+  void switchConversation(int index) {
+    _currentConversationIndex = index;
+    _messages
+      ..clear()
+      ..addAll(_conversations[index].messages);
+    notifyListeners();
   }
 }
