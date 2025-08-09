@@ -172,7 +172,11 @@ class _ChatViewState extends State<ChatView> {
                   const SizedBox(height: 20),
                   const Text(
                     'Chats',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -181,13 +185,15 @@ class _ChatViewState extends State<ChatView> {
               child: Consumer<ChatViewModel>(
                 builder: (context, value, child) {
                   return ListView.builder(
+                    padding: EdgeInsets.symmetric(vertical: 8),
                     itemCount: value.conversations.length,
                     itemBuilder: (context, index) {
                       final conv = value.conversations[index];
-                      return GestureDetector(
+                      return InkWell(
                         onTap: () {
                           value.switchConversation(index);
                           Navigator.pop(context);
+                          FocusScope.of(context).unfocus();
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
