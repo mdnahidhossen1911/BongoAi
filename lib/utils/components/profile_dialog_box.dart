@@ -1,3 +1,6 @@
+import 'package:bongoai/locator.dart';
+import 'package:bongoai/viewmodels/auth_view_model.dart';
+import 'package:bongoai/views/welcome_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -45,7 +48,8 @@ void showProfileDialog(BuildContext context) {
                 child: OutlinedButton(
                   onPressed: () async {
                     Navigator.of(context).pop();
-                    context.go('/login');
+                    serviceLocator<AuthViewModel>().logOut();
+                    context.go(WelcomeView.routeName);
                   },
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.red.shade50,

@@ -1,3 +1,6 @@
+import 'package:bongoai/locator.dart';
+import 'package:bongoai/models/user_model.dart';
+import 'package:bongoai/viewmodels/auth_view_model.dart';
 import 'package:bongoai/views/chat_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -7,9 +10,7 @@ import '../utils/app_logger.dart';
 
 class UserDetailsViewModel {
   Future<void> saveUserDetails(
-    String uuid,
-    String name,
-    String traits,
+    UserModel userModel,
     BuildContext context,
   ) async {
     final supaBase = Supabase.instance.client;
@@ -18,11 +19,15 @@ class UserDetailsViewModel {
       final resource =
           await supaBase
               .from('user_info')
-              .update({'name': name, 'des': traits})
-              .eq('id', uuid)
+              .update({
+                'name': userModel.shortName,
+                'des': userModel.description,
+              })
+              .eq('id', userModel.uid)
               .select();
       appLogger.i("User details saved successfully: $resource");
       if (resource[0]['des'] != null) {
+        serviceLocator<AuthViewModel>().saveData(userModel.uid, userModel);
         context.go(ChatView.routeName);
       } else {
         ScaffoldMessenger.of(

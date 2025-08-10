@@ -1,3 +1,4 @@
+import 'package:bongoai/models/user_model.dart';
 import 'package:go_router/go_router.dart';
 
 import '../views/chat_view.dart';
@@ -19,7 +20,7 @@ class AppRoutes {
       GoRoute(
         path: UserDetailsView.routeName,
         builder: (context, state) {
-          final info = state.extra as Map<String, dynamic>;
+          final info = state.extra as UserModel;
           return UserDetailsView(info: info);
         },
       ),
