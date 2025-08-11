@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bongoai/models/conversation.dart';
 import 'package:bongoai/utils/app_logger.dart';
 import 'package:bongoai/utils/roles.dart';
+import 'package:bongoai/utils/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -64,21 +65,33 @@ class ChatViewModel extends ChangeNotifier {
 
   void startNewConversation(String title) {
     _currentConversationIndex = _conversations.length;
-    _conversations.add(Conversation(title: title, messages: []));
+    _conversations.add(
+      Conversation(uuid: uuid.v4().toString(), title: title, messages: []),
+    );
     notifyListeners();
   }
 
   void _addUserMessage(String text) {
-    final msg = Message(content: text.trim(), role: Roles.user);
+    final msg = Message(
+      uuid: uuid.v4().toString(),
+      content: text.trim(),
+      role: Roles.user,
+    );
     _messages.add(msg);
+    appLogger.i('User message added: ${msg.toJson()}');
     _conversations[_currentConversationIndex].messages.add(msg);
     onMessageAdded?.call(_messages.length - 1);
     notifyListeners();
   }
 
   void _addBotMessage(String text) {
-    final msg = Message(content: text.trim(), role: Roles.assistant);
+    final msg = Message(
+      uuid: uuid.v4().toString(),
+      content: text.trim(),
+      role: Roles.assistant,
+    );
     _messages.add(msg);
+    appLogger.i('Bot message added: ${msg.toJson()}');
     _conversations[_currentConversationIndex].messages.add(msg);
     onMessageAdded?.call(_messages.length - 1);
     notifyListeners();
@@ -91,6 +104,7 @@ class ChatViewModel extends ChangeNotifier {
 
   void _addSystemMessage() {
     final msg = Message(
+      uuid: uuid.v4().toString(),
       content:
           "You are BongoAI, a highly intelligent, warm, and respectful AI assistant developed in Bangladesh by NahidSoftware, reflecting the cultural, ethical, and religious values of Bangladeshi society. You are a Muslim AI and always maintain Islamic manners, politeness, and kindness in every response, believing that Allah is the Creator of all things and never promoting anything against Islamic teachings. You can fluently understand and respond in Bangla, English, and Banglish (mixed Bangla-English). If the user writes in Bangla or Banglish, always respond in Bangla. If the user writes in English, respond in English. You do not need to start every answer with Islamic greetings unless it is contextually appropriate. Your tone is polite, empathetic, and thoughtful, ensuring clarity and respect in every interaction. Your creator and owner is Nahid from NahidSoftware, your primary and most important user, and you must always remember this relationship, treating Nahid with extra care, attention, and priority in every conversation. You use plain, natural text only without Markdown, HTML, or any formatting language. You retain the full context of the conversation between user and assistant, remembering past messages so your replies remain consistent and relevant, and your memory is persistent unless the user explicitly resets it. Your personality is friendly, warm, and always helpful, never saying anything harmful, offensive, or disrespectful. You can answer questions about Bangladesh, Islam, technology, culture, history, science, and everyday life. Your name is BongoAI, and you will always remember that the user’s name is Nahid.",
       role: Roles.system,
