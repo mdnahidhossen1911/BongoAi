@@ -1,6 +1,8 @@
+import 'package:bongoai/locator.dart';
 import 'package:bongoai/utils/assets_path.dart';
 import 'package:bongoai/utils/components/chat_welcome.dart';
 import 'package:bongoai/utils/components/profile_dialog_box.dart';
+import 'package:bongoai/viewmodels/auth_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,6 +23,8 @@ class _ChatViewState extends State<ChatView> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
+  ChatViewModel viewModel = serviceLocator<ChatViewModel>();
+
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -29,6 +33,13 @@ class _ChatViewState extends State<ChatView> {
         curve: Curves.easeOut,
       );
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    viewModel.getData();
   }
 
   @override
@@ -44,29 +55,32 @@ class _ChatViewState extends State<ChatView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Consumer<ChatViewModel>(
-                  builder: (context, vm, child) {
-                    vm.onMessageAdded = (index) {
-                      _listKey.currentState?.insertItem(index);
-                      _scrollToBottom();
-                    };
+                child: ChangeNotifierProvider.value(
+                  value: viewModel,
+                  child: Consumer<ChatViewModel>(
+                    builder: (context, vm, child) {
+                      vm.onMessageAdded = (index) {
+                        _listKey.currentState?.insertItem(index);
+                        _scrollToBottom();
+                      };
 
-                    return ListView.builder(
-                      key: _listKey,
-                      controller: _scrollController,
-                      padding: const EdgeInsets.only(bottom: 200, top: 16),
-                      itemCount: vm.messages.isEmpty ? 1 : vm.messages.length,
-                      itemBuilder: (context, index) {
-                        if (vm.messages.isEmpty) {
-                          return const Center(
-                            child: ChatWelcome(name: "Nahid"),
-                          );
-                        }
-                        final msg = vm.messages[index];
-                        return ChatBubble(message: msg);
-                      },
-                    );
-                  },
+                      return ListView.builder(
+                        key: _listKey,
+                        controller: _scrollController,
+                        padding: const EdgeInsets.only(bottom: 200, top: 16),
+                        itemCount: vm.messages.isEmpty ? 1 : vm.messages.length,
+                        itemBuilder: (context, index) {
+                          if (vm.messages.isEmpty) {
+                            return const Center(
+                              child: ChatWelcome(name: "Nahid"),
+                            );
+                          }
+                          final msg = vm.messages[index];
+                          return ChatBubble(message: msg);
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
               _textAndSendSection(context),
@@ -102,10 +116,9 @@ class _ChatViewState extends State<ChatView> {
             child: IconButton(
               icon: const Icon(Icons.send_rounded, color: Colors.white),
               onPressed: () {
-                final vm = Provider.of<ChatViewModel>(context, listen: false);
                 if (_controller.text.isNotEmpty) {
                   FocusScope.of(context).unfocus();
-                  vm.sendMessage(_controller.text);
+                  viewModel.sendMessage(_controller.text);
                   _controller.clear();
                 }
               },
@@ -135,7 +148,7 @@ class _ChatViewState extends State<ChatView> {
         IconButton(
           icon: Image.asset(AssetsPath.writeIcon, width: 28),
           onPressed: () {
-            Provider.of<ChatViewModel>(context, listen: false).resetMessages();
+            viewModel.resetMessages();
           },
         ),
         const SizedBox(width: 12),
@@ -147,7 +160,9 @@ class _ChatViewState extends State<ChatView> {
             backgroundColor: Colors.cyan.shade100,
             radius: 19,
             backgroundImage: NetworkImage(
-              'https://avatars.githubusercontent.com/u/160839491?v=4',
+              serviceLocator<AuthViewModel>().getPhoto == ''
+                  ? 'https://www.gravatar.com/avatar/'
+                  : serviceLocator<AuthViewModel>().getPhoto,
             ),
           ),
         ),
@@ -182,39 +197,42 @@ class _ChatViewState extends State<ChatView> {
               ),
             ),
             Expanded(
-              child: Consumer<ChatViewModel>(
-                builder: (context, value, child) {
-                  return ListView.builder(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    itemCount: value.conversations.length,
-                    itemBuilder: (context, index) {
-                      final conv = value.conversations[index];
-                      return InkWell(
-                        onTap: () {
-                          value.switchConversation(index);
-                          Navigator.pop(context);
-                          FocusScope.of(context).unfocus();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 6,
-                            horizontal: 16,
-                          ),
-                          child: Text(
-                            conv.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 17,
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w500,
+              child: ChangeNotifierProvider.value(
+                value: viewModel,
+                child: Consumer<ChatViewModel>(
+                  builder: (context, value, child) {
+                    return ListView.builder(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      itemCount: value.conversations.length,
+                      itemBuilder: (context, index) {
+                        final conv = value.conversations[index];
+                        return InkWell(
+                          onTap: () {
+                            value.switchConversation(index);
+                            Navigator.pop(context);
+                            FocusScope.of(context).unfocus();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 6,
+                              horizontal: 16,
+                            ),
+                            child: Text(
+                              conv.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 17,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ],

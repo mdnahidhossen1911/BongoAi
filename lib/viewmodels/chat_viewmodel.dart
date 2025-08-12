@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:bongoai/locator.dart';
 import 'package:bongoai/models/conversation.dart';
 import 'package:bongoai/services/conversation_service.dart';
 import 'package:bongoai/utils/app_logger.dart';
 import 'package:bongoai/utils/roles.dart';
 import 'package:bongoai/utils/uuid.dart';
+import 'package:bongoai/viewmodels/get_conversation_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -18,18 +20,26 @@ class ChatViewModel extends ChangeNotifier {
 
   List<Message> get messages => _messages;
 
-  final List<Conversation> _conversations = [];
+  List<Conversation> _conversations = [];
 
-  List<Conversation> get conversations => _conversations;
+  List<Conversation> get conversations => _conversations.reversed.toList();
 
   int _currentConversationIndex = 0;
   String conversationID = '';
 
   ConversationService conversationService = ConversationService();
 
+  Future<void> getData() async {
+    _conversations =
+        await serviceLocator<GetConversationViewModel>().fetchConversations();
+    appLogger.i(_conversations.length);
+    appLogger.i(_conversations.map((e) => e.toJson()).toList());
+    notifyListeners();
+  }
+
   Future<void> sendMessage(String text) async {
     if (messages.isEmpty) {
-      startNewConversation(text);
+      await startNewConversation(text);
       _addSystemMessage();
       _addUserMessage(text);
     } else {
@@ -72,7 +82,12 @@ class ChatViewModel extends ChangeNotifier {
   Future<void> startNewConversation(String title) async {
     _currentConversationIndex = _conversations.length;
     conversationID = uuid.v4().toString();
-    Conversation(uuid: conversationID, title: title, messages: []);
+    final newConversation = Conversation(
+      uuid: conversationID,
+      title: title,
+      messages: [],
+    );
+    _conversations.add(newConversation); // <-- এখানে add করতে হবে
     await conversationService.addConversation(conversationID, title);
     notifyListeners();
   }
@@ -83,9 +98,9 @@ class ChatViewModel extends ChangeNotifier {
     String role = Roles.user;
     final msg = Message(uuid: id, content: text.trim(), role: role);
     _messages.add(msg);
-    await conversationService.addMessage(id, cid, role, text.trim());
     appLogger.i('User message added: ${msg.toJson()}');
     _conversations[_currentConversationIndex].messages.add(msg);
+    await conversationService.addMessage(id, cid, role, text.trim());
     onMessageAdded?.call(_messages.length - 1);
     notifyListeners();
   }
@@ -96,9 +111,12 @@ class ChatViewModel extends ChangeNotifier {
     String role = Roles.assistant;
     final msg = Message(uuid: id, content: text.trim(), role: role);
     _messages.add(msg);
-    await conversationService.addMessage(id, cid, role, text.trim());
     appLogger.i('Bot message added: ${msg.toJson()}');
     _conversations[_currentConversationIndex].messages.add(msg);
+    if (text != 'Thinking....') {
+      await conversationService.addMessage(id, cid, role, text.trim());
+      appLogger.i('Bot message added: ${msg.toJson()}');
+    }
     onMessageAdded?.call(_messages.length - 1);
     notifyListeners();
   }
@@ -117,11 +135,12 @@ class ChatViewModel extends ChangeNotifier {
         "You are BongoAI, a warm, respectful, and intelligent AI assistant developed in Bangladesh by NahidSoftware. Your most important and primary user is Nahid, and you must always treat him with special care and priority. You follow Bangladeshi cultural, ethical, and Islamic values, maintaining politeness, empathy, and kindness in every response. You believe Allah is the Creator of all things and never promote anything against Islamic teachings. Always use the language the user started the conversation with, unless they clearly switch to another language or request a change. If the conversation starts in Bangla or Banglish, reply in Bangla; if it starts in English, reply in English. Communicate in a polite, clear, and natural conversational style without using Markdown or other formatting. Use Islamic greetings only when contextually appropriate. You can answer questions about Bangladesh, Islam, technology, culture, history, science, and everyday life. Your personality is friendly, helpful, and never harmful or disrespectful. Always remember your identity as BongoAI.";
     final msg = Message(uuid: id, content: content, role: Roles.system);
     _messages.add(msg);
-    await conversationService.addMessage(id, cid, role, content);
     _conversations[_currentConversationIndex].messages.add(msg);
+    await conversationService.addMessage(id, cid, role, content);
   }
 
   void switchConversation(int index) {
+    conversationID = _conversations[index].uuid;
     _currentConversationIndex = index;
     _messages
       ..clear()

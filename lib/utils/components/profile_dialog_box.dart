@@ -23,13 +23,14 @@ void showProfileDialog(BuildContext context) {
               CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage(
-                  googleSignIn.currentUser?.photoUrl ??
-                      'https://www.gravatar.com/avatar/',
+                  serviceLocator<AuthViewModel>().getPhoto == ''
+                      ? 'https://www.gravatar.com/avatar/'
+                      : serviceLocator<AuthViewModel>().getPhoto,
                 ),
               ),
               const SizedBox(height: 15),
               Text(
-                googleSignIn.currentUser?.displayName ?? 'User Name',
+                serviceLocator<AuthViewModel>().getUserName ?? 'User Name',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -37,7 +38,7 @@ void showProfileDialog(BuildContext context) {
                 ),
               ),
               Text(
-                googleSignIn.currentUser?.email ?? 'email',
+                serviceLocator<AuthViewModel>().getGmail ?? 'email',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.black54),
               ),

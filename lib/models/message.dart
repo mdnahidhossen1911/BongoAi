@@ -14,6 +14,6 @@ class Message {
   factory Message.fromJson(Map<String, dynamic> json) => Message(
     role: json['role'] as String,
     content: json['content'] as String,
-    uuid: json['uuid'] as String,
+    uuid: json['id'] as String,
   );
 }
