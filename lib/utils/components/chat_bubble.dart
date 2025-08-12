@@ -51,8 +51,11 @@ class ChatBubble extends StatelessWidget {
           Clipboard.setData(ClipboardData(text: message.content));
         },
         child: Text(
-          message.content,
-          style: TextStyle(color: Colors.black87, fontSize: 15),
+          message.content == '' ? 'Error' : message.content,
+          style: TextStyle(
+            color: message.content == '' ? Colors.redAccent : Colors.black87,
+            fontSize: 15,
+          ),
         ),
       );
     } else {
