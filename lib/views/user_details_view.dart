@@ -1,3 +1,4 @@
+import 'package:bongoai/models/user_model.dart';
 import 'package:bongoai/utils/components/app_logo.dart';
 import 'package:bongoai/viewmodels/user_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,7 @@ import 'package:flutter/material.dart';
 class UserDetailsView extends StatefulWidget {
   const UserDetailsView({super.key, required this.info});
 
-  final Map<String, dynamic> info;
+  final UserModel info;
 
   static const String routeName = '/user_details';
 
@@ -22,7 +23,7 @@ class _UserDetailsViewState extends State<UserDetailsView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    nameController.text = widget.info['name'] ?? '';
+    nameController.text = widget.info.fullName ?? '';
   }
 
   @override
@@ -149,9 +150,14 @@ class _UserDetailsViewState extends State<UserDetailsView> {
   Future<void> moveToChatView() async {
     if (formKey.currentState?.validate() ?? false) {
       UserDetailsViewModel().saveUserDetails(
-        widget.info['uuid'],
-        nameController.text,
-        traitsController.text,
+        UserModel(
+          uid: widget.info.uid,
+          email: widget.info.email,
+          fullName: widget.info.fullName,
+          shortName: nameController.text,
+          photo: widget.info.photo,
+          description: traitsController.text,
+        ),
         context,
       );
     }

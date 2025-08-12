@@ -1,6 +1,9 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:bongoai/locator.dart';
 import 'package:bongoai/utils/components/app_logo.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:bongoai/viewmodels/auth_view_model.dart';
+import 'package:bongoai/views/chat_view.dart';
+import 'package:bongoai/views/welcome_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,12 +25,12 @@ class _SplashViewState extends State<SplashView> {
   }
 
   Future<void> moveNextScreen() async {
-    final user = FirebaseAuth.instance.currentUser;
+    bool isLogin = await serviceLocator<AuthViewModel>().isLogIn();
     await Future.delayed(Duration(seconds: 4));
-    if (user != null) {
-      context.go('/chat');
+    if (isLogin) {
+      context.go(ChatView.routeName);
     } else {
-      context.go('/login');
+      context.go(WelcomeView.routeName);
     }
   }
 

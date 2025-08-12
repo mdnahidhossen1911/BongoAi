@@ -1,3 +1,6 @@
+import 'package:bongoai/locator.dart';
+import 'package:bongoai/models/user_model.dart';
+import 'package:bongoai/viewmodels/auth_view_model.dart';
 import 'package:bongoai/views/chat_view.dart';
 import 'package:bongoai/views/user_details_view.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +12,7 @@ import '../utils/app_logger.dart';
 
 class LoginViewmodel extends ChangeNotifier {
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
 
   final _googleSignIn = GoogleSignIn();
@@ -19,9 +23,9 @@ class LoginViewmodel extends ChangeNotifier {
   Future<void> signInWithGoogle(BuildContext context) async {
     _isLoading = true;
     notifyListeners();
+    UserModel userModel;
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      final userInfo;
       if (googleUser != null) {
         final userData =
             await supaBase
@@ -43,22 +47,31 @@ class LoginViewmodel extends ChangeNotifier {
                   .single();
           appLogger.i('new user added');
           appLogger.i(response);
-          userInfo = response;
-          context.go(
-            UserDetailsView.routeName,
-            extra: {'uuid': response['id'], 'name': response['name']},
+          userModel = UserModel(
+            uid: response['id'],
+            email: response['email'],
+            fullName: googleUser.displayName,
+            shortName: response['name'],
+            photo: googleUser.photoUrl,
+            description: response['des'],
           );
+          context.go(UserDetailsView.routeName, extra: userData);
         } else {
           appLogger.i(googleUser.email);
           appLogger.i(userData);
-          userInfo = userData;
+          userModel = UserModel(
+            uid: userData['id'],
+            email: userData['email'],
+            fullName: googleUser.displayName,
+            shortName: userData['name'],
+            photo: googleUser.photoUrl,
+            description: userData['des'],
+          );
           if (userData['des'] != null) {
             context.go(ChatView.routeName);
+            serviceLocator<AuthViewModel>().saveData(userData['id'], userModel);
           } else {
-            context.go(
-              UserDetailsView.routeName,
-              extra: {'uuid': userData['id'], 'name': userData['name']},
-            );
+            context.go(UserDetailsView.routeName, extra: userData);
           }
         }
 

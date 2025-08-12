@@ -1,3 +1,6 @@
+import 'package:bongoai/locator.dart';
+import 'package:bongoai/viewmodels/auth_view_model.dart';
+import 'package:bongoai/views/welcome_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -20,13 +23,14 @@ void showProfileDialog(BuildContext context) {
               CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage(
-                  googleSignIn.currentUser?.photoUrl ??
-                      'https://www.gravatar.com/avatar/',
+                  serviceLocator<AuthViewModel>().getPhoto == ''
+                      ? 'https://www.gravatar.com/avatar/'
+                      : serviceLocator<AuthViewModel>().getPhoto,
                 ),
               ),
               const SizedBox(height: 15),
               Text(
-                googleSignIn.currentUser?.displayName ?? 'User Name',
+                serviceLocator<AuthViewModel>().getUserName ?? 'User Name',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -34,7 +38,7 @@ void showProfileDialog(BuildContext context) {
                 ),
               ),
               Text(
-                googleSignIn.currentUser?.email ?? 'email',
+                serviceLocator<AuthViewModel>().getGmail ?? 'email',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.black54),
               ),
@@ -45,7 +49,8 @@ void showProfileDialog(BuildContext context) {
                 child: OutlinedButton(
                   onPressed: () async {
                     Navigator.of(context).pop();
-                    context.go('/login');
+                    serviceLocator<AuthViewModel>().logOut();
+                    context.go(WelcomeView.routeName);
                   },
                   style: OutlinedButton.styleFrom(
                     backgroundColor: Colors.red.shade50,

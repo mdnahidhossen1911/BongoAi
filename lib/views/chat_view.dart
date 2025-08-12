@@ -1,7 +1,8 @@
+import 'package:bongoai/locator.dart';
 import 'package:bongoai/utils/assets_path.dart';
 import 'package:bongoai/utils/components/chat_welcome.dart';
 import 'package:bongoai/utils/components/profile_dialog_box.dart';
-import 'package:bongoai/utils/roles.dart';
+import 'package:bongoai/viewmodels/auth_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +23,8 @@ class _ChatViewState extends State<ChatView> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
+  ChatViewModel viewModel = serviceLocator<ChatViewModel>();
+
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -32,22 +35,11 @@ class _ChatViewState extends State<ChatView> {
     }
   }
 
-  void _addMessage(ChatViewModel vm, String text) {
-    vm.addUserMessage(text);
-    _listKey.currentState?.insertItem(vm.messages.length - 1);
-    _scrollToBottom();
-    Future.delayed(const Duration(seconds: 1), () {
-      vm.addBotMessage(
-        'You are a helpful, intelligent, and respectful AI assistant named BongoAI. You were developed in Bangladesh and your core identity reflects the cultural, ethical, and religious values of Bangladeshi society.',
-      );
-      _listKey.currentState?.insertItem(vm.messages.length - 1);
-      _scrollToBottom();
-      Future.delayed(const Duration(seconds: 5), () {
-        final botIndex = vm.messages.lastIndexWhere(
-          (m) => m.role == Roles.assistant && m.content == '...thinking...',
-        );
-      });
-    });
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    viewModel.getData();
   }
 
   @override
@@ -63,24 +55,32 @@ class _ChatViewState extends State<ChatView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Consumer<ChatViewModel>(
-                  builder: (context, vm, child) {
-                    return ListView.builder(
-                      key: _listKey,
-                      controller: _scrollController,
-                      padding: const EdgeInsets.only(bottom: 200, top: 16),
-                      itemCount: vm.messages.isEmpty ? 1 : vm.messages.length,
-                      itemBuilder: (context, index) {
-                        if (vm.messages.isEmpty) {
-                          return const Center(
-                            child: ChatWelcome(name: "Nahid"),
-                          );
-                        }
-                        final msg = vm.messages[index];
-                        return ChatBubble(message: msg);
-                      },
-                    );
-                  },
+                child: ChangeNotifierProvider.value(
+                  value: viewModel,
+                  child: Consumer<ChatViewModel>(
+                    builder: (context, vm, child) {
+                      vm.onMessageAdded = (index) {
+                        _listKey.currentState?.insertItem(index);
+                        _scrollToBottom();
+                      };
+
+                      return ListView.builder(
+                        key: _listKey,
+                        controller: _scrollController,
+                        padding: const EdgeInsets.only(bottom: 200, top: 16),
+                        itemCount: vm.messages.isEmpty ? 1 : vm.messages.length,
+                        itemBuilder: (context, index) {
+                          if (vm.messages.isEmpty) {
+                            return const Center(
+                              child: ChatWelcome(name: "Nahid"),
+                            );
+                          }
+                          final msg = vm.messages[index];
+                          return ChatBubble(message: msg);
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
               _textAndSendSection(context),
@@ -116,9 +116,9 @@ class _ChatViewState extends State<ChatView> {
             child: IconButton(
               icon: const Icon(Icons.send_rounded, color: Colors.white),
               onPressed: () {
-                final vm = Provider.of<ChatViewModel>(context, listen: false);
                 if (_controller.text.isNotEmpty) {
-                  _addMessage(vm, _controller.text);
+                  FocusScope.of(context).unfocus();
+                  viewModel.sendMessage(_controller.text);
                   _controller.clear();
                 }
               },
@@ -147,7 +147,9 @@ class _ChatViewState extends State<ChatView> {
       actions: [
         IconButton(
           icon: Image.asset(AssetsPath.writeIcon, width: 28),
-          onPressed: () {},
+          onPressed: () {
+            viewModel.resetMessages();
+          },
         ),
         const SizedBox(width: 12),
         GestureDetector(
@@ -158,7 +160,9 @@ class _ChatViewState extends State<ChatView> {
             backgroundColor: Colors.cyan.shade100,
             radius: 19,
             backgroundImage: NetworkImage(
-              'https://avatars.githubusercontent.com/u/160839491?v=4',
+              serviceLocator<AuthViewModel>().getPhoto == ''
+                  ? 'https://www.gravatar.com/avatar/'
+                  : serviceLocator<AuthViewModel>().getPhoto,
             ),
           ),
         ),
@@ -183,29 +187,52 @@ class _ChatViewState extends State<ChatView> {
                   const SizedBox(height: 20),
                   const Text(
                     'Chats',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: 30,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      'MD Nahid Hossenf ghd fh dfgh d fghd fgh df ghd fgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh dfgh',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                    onTap: () {},
-                  );
-                },
+              child: ChangeNotifierProvider.value(
+                value: viewModel,
+                child: Consumer<ChatViewModel>(
+                  builder: (context, value, child) {
+                    return ListView.builder(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      itemCount: value.conversations.length,
+                      itemBuilder: (context, index) {
+                        final conv = value.conversations[index];
+                        return InkWell(
+                          onTap: () {
+                            value.switchConversation(index);
+                            Navigator.pop(context);
+                            FocusScope.of(context).unfocus();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 6,
+                              horizontal: 16,
+                            ),
+                            child: Text(
+                              conv.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 17,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ],
